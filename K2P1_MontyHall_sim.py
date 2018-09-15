@@ -16,7 +16,8 @@ import seaborn as sns
 
 class MH_Trial():
     """ This class represents a trial object, for the Monty Hall problem
-        simulation. """
+        simulation.  All three doors are initialized to a 'zonk' and a car
+        will be randomly assigned to one of the three doors. """
     
     def __init__(self, number_of_trials, swap=False):
         """ This method initializes the Trial class attributes. """
@@ -24,7 +25,7 @@ class MH_Trial():
         self.car_count = 0
         self.number_of_trials = number_of_trials
         self.doors = ['zonk', 'zonk', 'zonk']
-        self.available_doors = [1, 2, 3]
+        self.available_doors = [0, 1, 2]
         self.final_door_number = 0
         self.swap = swap
         self.results = []
@@ -33,8 +34,8 @@ class MH_Trial():
     def assign_car_to_door(self):
         """ This method randomly assigns the car to one of the three doors."""
         self.doors = ['zonk', 'zonk', 'zonk']
-        car = random.randint(1, 3)
-        self.doors[car-1] = 'car'
+        car = random.randint(0, 2)
+        self.doors[car] = 'car'
         
         
     def increment_zonk_count(self):
@@ -50,12 +51,12 @@ class MH_Trial():
     def tally_result(self):
         """ This method will increment the counts of cars vs zonks depending on what is found behind
             the door selection, and append the result in the results [] """
-        if self.doors[self.final_door_number - 1] == 'zonk':
+        if self.doors[self.final_door_number] == 'zonk':
             self.increment_zonk_count()
-        elif self.doors[self.final_door_number - 1] == 'car':
+        elif self.doors[self.final_door_number] == 'car':
             self.increment_car_count()
         
-        self.results.append(self.doors[self.final_door_number - 1])
+        self.results.append(self.doors[self.final_door_number])
         
         
     def pick_door(self):
@@ -63,14 +64,14 @@ class MH_Trial():
             if swap=True, this will set the selection to the remaining 'closed' door"""
         
         remaining_doors = self.available_doors.copy()
-        self.final_door_number = random.randint(1, 3)
+        self.final_door_number = random.randint(0, 2)
         
         if self.swap == True:
-            remaining_doors.pop(self.final_door_number - 1)
+            remaining_doors.pop(self.final_door_number)
             open_door = random.choice(remaining_doors)
             open_door_idx = remaining_doors.index(open_door)
          
-            if self.doors[open_door - 1] == 'car':
+            if self.doors[open_door] == 'car':
                 if open_door_idx == 0:
                     final_door_idx = 0
                 else:
@@ -97,12 +98,12 @@ class MH_Trial():
         
         sns.set()
         df = pd.DataFrame({'result' : self.results})
-        _ = plt.hist(df, bins=3)
-        _ = plt.xlabel('zonk vs. car')
+        df['result'].value_counts().plot(kind='bar')
+        plt.xlabel('zonk vs. car')
         if self.swap == True:
-            _ = plt.ylabel('P for N trials with swap')
+            plt.ylabel('P for N trials with swap')
         else:
-            _ = plt.ylabel('P for N trials w/o swap')
+            plt.ylabel('P for N trials w/o swap')
             
         plt.show()
         
